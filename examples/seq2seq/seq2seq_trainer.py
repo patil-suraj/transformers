@@ -93,7 +93,6 @@ class Seq2SeqTrainer(Trainer):
                     inputs["input_ids"],
                     attention_mask=inputs["attention_mask"],
                     use_cache=True,
-                    num_beams=model.config.num_beams,
                     max_length=max_length,
                 )
                 # in case the batch is shorter than max length, the output should be padded
