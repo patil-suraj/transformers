@@ -146,6 +146,7 @@ from .models.funnel import FUNNEL_PRETRAINED_CONFIG_ARCHIVE_MAP, FunnelConfig, F
 from .models.gpt2 import GPT2_PRETRAINED_CONFIG_ARCHIVE_MAP, GPT2Config, GPT2Tokenizer
 from .models.herbert import HerbertTokenizer
 from .models.layoutlm import LAYOUTLM_PRETRAINED_CONFIG_ARCHIVE_MAP, LayoutLMConfig, LayoutLMTokenizer
+from .models.linformer import LINFORMER_PRETRAINED_CONFIG_ARCHIVE_MAP, LinformerConfig, LinformerTokenizer
 from .models.longformer import LONGFORMER_PRETRAINED_CONFIG_ARCHIVE_MAP, LongformerConfig, LongformerTokenizer
 from .models.lxmert import LXMERT_PRETRAINED_CONFIG_ARCHIVE_MAP, LxmertConfig, LxmertTokenizer
 from .models.marian import MarianConfig
@@ -255,6 +256,7 @@ if is_tokenizers_available():
     from .models.gpt2 import GPT2TokenizerFast
     from .models.herbert import HerbertTokenizerFast
     from .models.layoutlm import LayoutLMTokenizerFast
+    from .models.linformer import LinformerTokenizerFast
     from .models.longformer import LongformerTokenizerFast
     from .models.lxmert import LxmertTokenizerFast
     from .models.mbart import MBartTokenizerFast
@@ -299,6 +301,7 @@ logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 
 # Modeling
 if is_torch_available():
+
     # Benchmarks
     from .benchmark.benchmark import PyTorchBenchmark
     from .benchmark.benchmark_args import PyTorchBenchmarkArguments
@@ -506,6 +509,17 @@ if is_torch_available():
         LayoutLMForMaskedLM,
         LayoutLMForTokenClassification,
         LayoutLMModel,
+    )
+    from .models.linformer import (
+        LINFORMER_PRETRAINED_MODEL_ARCHIVE_LIST,
+        LinformerForMaskedLM,
+        LinformerForMultipleChoice,
+        LinformerForQuestionAnswering,
+        LinformerForSequenceClassification,
+        LinformerForTokenClassification,
+        LinformerLayer,
+        LinformerModel,
+        LinformerPreTrainedModel,
     )
     from .models.longformer import (
         LONGFORMER_PRETRAINED_MODEL_ARCHIVE_LIST,

@@ -21,8 +21,6 @@ from collections import OrderedDict
 from ...configuration_utils import PretrainedConfig
 from ...file_utils import add_start_docstrings
 from ...utils import logging
-
-# Add modeling imports here
 from ..albert.modeling_albert import (
     AlbertForMaskedLM,
     AlbertForMultipleChoice,
@@ -101,6 +99,16 @@ from ..funnel.modeling_funnel import (
 )
 from ..gpt2.modeling_gpt2 import GPT2ForSequenceClassification, GPT2LMHeadModel, GPT2Model
 from ..layoutlm.modeling_layoutlm import LayoutLMForMaskedLM, LayoutLMForTokenClassification, LayoutLMModel
+
+# Add modeling imports here
+from ..linformer.modeling_linformer import (
+    LinformerForMaskedLM,
+    LinformerForMultipleChoice,
+    LinformerForQuestionAnswering,
+    LinformerForSequenceClassification,
+    LinformerForTokenClassification,
+    LinformerModel,
+)
 from ..longformer.modeling_longformer import (
     LongformerForMaskedLM,
     LongformerForMultipleChoice,
@@ -221,6 +229,7 @@ from .configuration_auto import (
     FunnelConfig,
     GPT2Config,
     LayoutLMConfig,
+    LinformerConfig,
     LongformerConfig,
     LxmertConfig,
     MarianConfig,
@@ -252,6 +261,7 @@ logger = logging.get_logger(__name__)
 MODEL_MAPPING = OrderedDict(
     [
         # Base model mapping
+        (LinformerConfig, LinformerModel),
         (RetriBertConfig, RetriBertModel),
         (MT5Config, MT5Model),
         (T5Config, T5Model),
@@ -327,6 +337,7 @@ MODEL_FOR_PRETRAINING_MAPPING = OrderedDict(
 MODEL_WITH_LM_HEAD_MAPPING = OrderedDict(
     [
         # Model with LM heads mapping
+        (LinformerConfig, LinformerForMaskedLM),
         (LayoutLMConfig, LayoutLMForMaskedLM),
         (T5Config, T5ForConditionalGeneration),
         (DistilBertConfig, DistilBertForMaskedLM),
@@ -383,6 +394,7 @@ MODEL_FOR_CAUSAL_LM_MAPPING = OrderedDict(
 MODEL_FOR_MASKED_LM_MAPPING = OrderedDict(
     [
         # Model for Masked LM mapping
+        (LinformerConfig, LinformerForMaskedLM),
         (LayoutLMConfig, LayoutLMForMaskedLM),
         (DistilBertConfig, DistilBertForMaskedLM),
         (AlbertConfig, AlbertForMaskedLM),
@@ -424,6 +436,7 @@ MODEL_FOR_SEQ_TO_SEQ_CAUSAL_LM_MAPPING = OrderedDict(
 MODEL_FOR_SEQUENCE_CLASSIFICATION_MAPPING = OrderedDict(
     [
         # Model for Sequence Classification mapping
+        (LinformerConfig, LinformerForSequenceClassification),
         (DistilBertConfig, DistilBertForSequenceClassification),
         (AlbertConfig, AlbertForSequenceClassification),
         (CamembertConfig, CamembertForSequenceClassification),
@@ -453,6 +466,7 @@ MODEL_FOR_SEQUENCE_CLASSIFICATION_MAPPING = OrderedDict(
 MODEL_FOR_QUESTION_ANSWERING_MAPPING = OrderedDict(
     [
         # Model for Question Answering mapping
+        (LinformerConfig, LinformerForQuestionAnswering),
         (DistilBertConfig, DistilBertForQuestionAnswering),
         (AlbertConfig, AlbertForQuestionAnswering),
         (CamembertConfig, CamembertForQuestionAnswering),
@@ -484,6 +498,7 @@ MODEL_FOR_TABLE_QUESTION_ANSWERING_MAPPING = OrderedDict(
 MODEL_FOR_TOKEN_CLASSIFICATION_MAPPING = OrderedDict(
     [
         # Model for Token Classification mapping
+        (LinformerConfig, LinformerForTokenClassification),
         (LayoutLMConfig, LayoutLMForTokenClassification),
         (DistilBertConfig, DistilBertForTokenClassification),
         (CamembertConfig, CamembertForTokenClassification),
@@ -507,6 +522,7 @@ MODEL_FOR_TOKEN_CLASSIFICATION_MAPPING = OrderedDict(
 MODEL_FOR_MULTIPLE_CHOICE_MAPPING = OrderedDict(
     [
         # Model for Multiple Choice mapping
+        (LinformerConfig, LinformerForMultipleChoice),
         (CamembertConfig, CamembertForMultipleChoice),
         (ElectraConfig, ElectraForMultipleChoice),
         (XLMRobertaConfig, XLMRobertaForMultipleChoice),
