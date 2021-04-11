@@ -43,6 +43,7 @@ from ..funnel.configuration_funnel import FUNNEL_PRETRAINED_CONFIG_ARCHIVE_MAP, 
 from ..gpt2.configuration_gpt2 import GPT2_PRETRAINED_CONFIG_ARCHIVE_MAP, GPT2Config
 from ..gpt_neo.configuration_gpt_neo import GPT_NEO_PRETRAINED_CONFIG_ARCHIVE_MAP, GPTNeoConfig
 from ..ibert.configuration_ibert import IBERT_PRETRAINED_CONFIG_ARCHIVE_MAP, IBertConfig
+from ..image_gpt.configuration_image_gpt import IMAGE_GPT_PRETRAINED_CONFIG_ARCHIVE_MAP, ImageGPTConfig
 from ..layoutlm.configuration_layoutlm import LAYOUTLM_PRETRAINED_CONFIG_ARCHIVE_MAP, LayoutLMConfig
 from ..led.configuration_led import LED_PRETRAINED_CONFIG_ARCHIVE_MAP, LEDConfig
 from ..longformer.configuration_longformer import LONGFORMER_PRETRAINED_CONFIG_ARCHIVE_MAP, LongformerConfig
@@ -84,6 +85,7 @@ ALL_PRETRAINED_CONFIG_ARCHIVE_MAP = dict(
     (key, value)
     for pretrained_map in [
         # Add archive maps here
+        IMAGE_GPT_PRETRAINED_CONFIG_ARCHIVE_MAP,
         GPT_NEO_PRETRAINED_CONFIG_ARCHIVE_MAP,
         BIG_BIRD_PRETRAINED_CONFIG_ARCHIVE_MAP,
         MEGATRON_BERT_PRETRAINED_CONFIG_ARCHIVE_MAP,
@@ -135,6 +137,7 @@ ALL_PRETRAINED_CONFIG_ARCHIVE_MAP = dict(
 CONFIG_MAPPING = OrderedDict(
     [
         # Add configs here
+        ("image_gpt", ImageGPTConfig),
         ("gpt_neo", GPTNeoConfig),
         ("big_bird", BigBirdConfig),
         ("speech_to_text", Speech2TextConfig),
@@ -192,6 +195,7 @@ CONFIG_MAPPING = OrderedDict(
 MODEL_NAMES_MAPPING = OrderedDict(
     [
         # Add full (and cased) model names here
+        ("image_gpt", "ImageGPT"),
         ("gpt_neo", "GPT Neo"),
         ("big_bird", "BigBird"),
         ("speech_to_text", "Speech2Text"),

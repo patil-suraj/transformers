@@ -44,6 +44,7 @@ from . import (
     gpt2,
     gpt_neo,
     herbert,
+    image_gpt,
     layoutlm,
     led,
     longformer,
