@@ -263,7 +263,7 @@ class ImageGPTAttention(nn.Module):
 
 class ImageGPTLayerNorm(nn.Module):
     def __init__(self, hidden_size, eps=1e-5):
-        super().__init__(ImageGPTLayerNorm)
+        super().__init__()
         self.weight = nn.Parameter(torch.ones(hidden_size))
         self.epsilon = eps
 
@@ -394,7 +394,6 @@ class ImageGPTPreTrainedModel(PreTrainedModel):
             if module.padding_idx is not None:
                 module.weight.data[module.padding_idx].zero_()
         elif isinstance(module, ImageGPTLayerNorm):
-            module.bias.data.zero_()
             module.weight.data.fill_(1.0)
 
 
