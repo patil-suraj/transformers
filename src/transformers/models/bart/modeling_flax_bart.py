@@ -639,16 +639,16 @@ class FlaxBartPretrainedModel(FlaxPreTrainedModel):
 
     def __call__(
         self,
-        input_ids: Optional[jnp.ndarray] = None,
+        input_ids: Optional[jnp.ndarray],
         attention_mask: Optional[jnp.ndarray] = None,
         decoder_input_ids: Optional[jnp.ndarray] = None,
         decoder_attention_mask: Optional[jnp.ndarray] = None,
+        position_ids: Optional[jnp.ndarray] = None,
+        decoder_position_ids: Optional[jnp.ndarray] = None,
         head_mask: Optional[jnp.ndarray] = None,
         decoder_head_mask: Optional[jnp.ndarray] = None,
         cross_attn_head_mask: Optional[jnp.ndarray] = None,
         encoder_outputs: Optional[jnp.ndarray] = None,
-        inputs_embeds: Optional[jnp.ndarray] = None,
-        decoder_inputs_embeds: Optional[jnp.ndarray] = None,
         use_cache: Optional[bool] = None,
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
@@ -664,24 +664,20 @@ class FlaxBartPretrainedModel(FlaxPreTrainedModel):
         return_dict = return_dict if return_dict is not None else self.config.return_dict
 
         # Sanity check
-        if input_ids is not None and inputs_embeds is not None:
-            raise ValueError("You cannot specify both input_ids and inputs_embeds at the same time")
-        elif input_ids is not None:
+        if input_ids is not None:
             input_shape = input_ids.shape
             input_ids = input_ids.reshape(-1, input_shape[-1])
-        elif inputs_embeds is not None:
-            input_shape = inputs_embeds.shape[:-1]
         else:
-            raise ValueError("You have to specify either input_ids or inputs_embeds")
+            raise ValueError("You have to specify either input_ids")
 
         if attention_mask is None:
-            attention_mask = jnp.ones(input_shape)
+            attention_mask = jnp.ones_like(input_ids)
         if decoder_input_ids is None:
             decoder_input_ids = shift_tokens_right(
                 input_ids, self.config.pad_token_id, decoder_start_token_id=self.config.decoder_start_token_id
             )
         if decoder_attention_mask is None:
-            decoder_attention_mask = attention_mask
+            decoder_attention_mask = jnp.ones_like(decoder_input_ids)
 
         # Handle any PRNG if needed
         rngs = {}
@@ -690,19 +686,15 @@ class FlaxBartPretrainedModel(FlaxPreTrainedModel):
 
         return self.module.apply(
             {"params": params or self.params},
-            input_ids=jnp.array(input_ids, dtype="i4") if input_ids is not None else None,
-            attention_mask=jnp.array(attention_mask, dtype="i4") if attention_mask is not None else None,
-            decoder_input_ids=jnp.array(decoder_input_ids, dtype="i4") if decoder_input_ids is not None else None,
+            input_ids=jnp.array(input_ids, dtype="i4"),
+            attention_mask=jnp.array(attention_mask, dtype="i4"),
+            decoder_input_ids=jnp.array(decoder_input_ids, dtype="i4"),
             head_mask=jnp.array(head_mask, dtype="i4") if head_mask is not None else None,
             decoder_head_mask=jnp.array(decoder_head_mask, dtype="i4") if decoder_head_mask is not None else None,
             cross_attn_head_mask=(
                 jnp.array(cross_attn_head_mask, dtype="i4") if cross_attn_head_mask is not None else None
             ),
             encoder_outputs=jnp.array(encoder_outputs, dtype="fp32") if encoder_outputs is not None else None,
-            inputs_embeds=jnp.array(inputs_embeds, dtype="fp32") if inputs_embeds is not None else None,
-            decoder_inputs_embeds=(
-                jnp.array(decoder_inputs_embeds, dtype="fp32") if decoder_inputs_embeds is not None else None
-            ),
             use_cache=use_cache,
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
@@ -879,7 +871,6 @@ class FlaxBartEncoder(nn.Module):
         input_ids: Optional[jnp.ndarray] = None,
         attention_mask: Optional[jnp.ndarray] = None,
         head_mask: Optional[jnp.ndarray] = None,
-        inputs_embeds: Optional[jnp.ndarray] = None,
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         return_dict: bool = True,
@@ -929,18 +920,13 @@ class FlaxBartEncoder(nn.Module):
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
         # retrieve input_ids and inputs_embeds
-        if input_ids is not None and inputs_embeds is not None:
-            raise ValueError("You cannot specify both input_ids and inputs_embeds at the same time")
-        elif input_ids is not None:
+        if input_ids is not None:
             input_shape = input_ids.shape
             input_ids = input_ids.reshape(-1, input_shape[-1])
-        elif inputs_embeds is not None:
-            input_shape = inputs_embeds.shape[:-1]
         else:
-            raise ValueError("You have to specify either input_ids or inputs_embeds")
+            raise ValueError("You have to specify either input_ids")
 
-        if inputs_embeds is None:
-            inputs_embeds = self.embed_tokens(input_ids) * self.embed_scale
+        inputs_embeds = self.embed_tokens(input_ids) * self.embed_scale
 
         embed_pos = self.embed_positions(jnp.arange(input_shape[1], dtype=jnp.uint32) + self.offset)
 
@@ -1127,22 +1113,15 @@ class FlaxBartDecoder(nn.Module):
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
         # retrieve input_ids and inputs_embeds
-        if input_ids is not None and inputs_embeds is not None:
-            raise ValueError("You cannot specify both input_ids and inputs_embeds at the same time")
-        elif input_ids is not None:
+        if input_ids is not None:
             input_shape = input_ids.shape
             input_ids = input_ids.reshape(-1, input_shape[-1])
-        elif inputs_embeds is not None:
-            input_shape = inputs_embeds.shape[:-1]
         else:
-            raise ValueError("You have to specify either input_ids or inputs_embeds")
+            raise ValueError("You have to specify either input_ids")
 
-        if inputs_embeds is None:
-            inputs_embeds = self.embed_tokens(input_ids) * self.embed_scale
+        inputs_embeds = self.embed_tokens(input_ids) * self.embed_scale
 
-        attention_mask = self._prepare_decoder_attention_mask(
-            attention_mask, input_shape, inputs_embeds, 0
-        )
+        attention_mask = self._prepare_decoder_attention_mask(attention_mask, input_shape, inputs_embeds, 0)
 
         # expand encoder attention mask
         if encoder_hidden_states is not None and encoder_attention_mask is not None:
@@ -1215,15 +1194,13 @@ class FlaxBartModule(nn.Module):
         decoder_head_mask: Optional[jnp.ndarray] = None,
         cross_attn_head_mask: Optional[jnp.ndarray] = None,
         encoder_outputs: Optional[jnp.ndarray] = None,
-        inputs_embeds: Optional[jnp.ndarray] = None,
-        decoder_inputs_embeds: Optional[jnp.ndarray] = None,
         use_cache: Optional[bool] = None,
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         return_dict: bool = True,
         deterministic: bool = True,
     ):
-        if decoder_input_ids is None and decoder_inputs_embeds is None:
+        if decoder_input_ids is None:
             decoder_input_ids = shift_tokens_right(
                 input_ids, self.config.pad_token_id, self.config.decoder_start_token_id
             )
@@ -1240,7 +1217,6 @@ class FlaxBartModule(nn.Module):
                 input_ids=input_ids,
                 attention_mask=attention_mask,
                 head_mask=head_mask,
-                inputs_embeds=inputs_embeds,
                 output_attentions=output_attentions,
                 output_hidden_states=output_hidden_states,
                 return_dict=return_dict,
@@ -1261,7 +1237,6 @@ class FlaxBartModule(nn.Module):
             encoder_attention_mask=attention_mask,
             head_mask=decoder_head_mask,
             cross_attn_head_mask=cross_attn_head_mask,
-            inputs_embeds=decoder_inputs_embeds,
             use_cache=use_cache,
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
@@ -1314,8 +1289,6 @@ class FlaxBartForConditionalGenerationModule(nn.Module):
         decoder_head_mask: Optional[jnp.ndarray] = None,
         cross_attn_head_mask: Optional[jnp.ndarray] = None,
         encoder_outputs: Optional[jnp.ndarray] = None,
-        inputs_embeds: Optional[jnp.ndarray] = None,
-        decoder_inputs_embeds: Optional[jnp.ndarray] = None,
         use_cache: Optional[bool] = None,
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
@@ -1331,8 +1304,6 @@ class FlaxBartForConditionalGenerationModule(nn.Module):
             decoder_head_mask=decoder_head_mask,
             cross_attn_head_mask=cross_attn_head_mask,
             encoder_outputs=encoder_outputs,
-            inputs_embeds=inputs_embeds,
-            decoder_inputs_embeds=decoder_inputs_embeds,
             use_cache=use_cache,
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
@@ -1398,8 +1369,6 @@ class FlaxBartForSequenceClassificationModule(nn.Module):
         decoder_head_mask: Optional[jnp.ndarray] = None,
         cross_attn_head_mask: Optional[jnp.ndarray] = None,
         encoder_outputs: Optional[jnp.ndarray] = None,
-        inputs_embeds: Optional[jnp.ndarray] = None,
-        decoder_inputs_embeds: Optional[jnp.ndarray] = None,
         use_cache: Optional[bool] = None,
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
@@ -1415,8 +1384,6 @@ class FlaxBartForSequenceClassificationModule(nn.Module):
             decoder_head_mask=decoder_head_mask,
             cross_attn_head_mask=cross_attn_head_mask,
             encoder_outputs=encoder_outputs,
-            inputs_embeds=inputs_embeds,
-            decoder_inputs_embeds=decoder_inputs_embeds,
             use_cache=use_cache,
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
@@ -1490,8 +1457,6 @@ class FlaxBartForQuestionAnsweringModule(nn.Module):
         decoder_head_mask: Optional[jnp.ndarray] = None,
         cross_attn_head_mask: Optional[jnp.ndarray] = None,
         encoder_outputs: Optional[jnp.ndarray] = None,
-        inputs_embeds: Optional[jnp.ndarray] = None,
-        decoder_inputs_embeds: Optional[jnp.ndarray] = None,
         use_cache: Optional[bool] = None,
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
@@ -1507,8 +1472,6 @@ class FlaxBartForQuestionAnsweringModule(nn.Module):
             decoder_head_mask=decoder_head_mask,
             cross_attn_head_mask=cross_attn_head_mask,
             encoder_outputs=encoder_outputs,
-            inputs_embeds=inputs_embeds,
-            decoder_inputs_embeds=decoder_inputs_embeds,
             use_cache=use_cache,
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
