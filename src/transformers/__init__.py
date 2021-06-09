@@ -130,6 +130,7 @@ _import_structure = {
         "load_tf2_weights_in_pytorch_model",
     ],
     # Models
+    "models.gpt_j": ["GPT_J_PRETRAINED_CONFIG_ARCHIVE_MAP", "GPTJConfig", "GPTJTokenizer"],
     "models": [],
     "models.albert": ["ALBERT_PRETRAINED_CONFIG_ARCHIVE_MAP", "AlbertConfig"],
     "models.auto": [
@@ -325,6 +326,7 @@ else:
 # tokenizers-backed objects
 if is_tokenizers_available():
     # Fast tokenizers
+    _import_structure["models.gpt_j"].append("GPTJTokenizerFast")
     _import_structure["models.roformer"].append("RoFormerTokenizerFast")
     _import_structure["models.clip"].append("CLIPTokenizerFast")
     _import_structure["models.convbert"].append("ConvBertTokenizerFast")
@@ -467,6 +469,22 @@ if is_torch_available():
     _import_structure["modeling_utils"] = ["Conv1D", "PreTrainedModel", "apply_chunking_to_forward", "prune_layer"]
 
     # PyTorch models structure
+
+    _import_structure["models.gpt_j"].extend(
+        [
+            "GPT_J_PRETRAINED_MODEL_ARCHIVE_LIST",
+            "GPTJForMaskedLM",
+            "GPTJForCausalLM",
+            "GPTJForMultipleChoice",
+            "GPTJForQuestionAnswering",
+            "GPTJForSequenceClassification",
+            "GPTJForTokenClassification",
+            "GPTJLayer",
+            "GPTJModel",
+            "GPTJPreTrainedModel",
+            "load_tf_weights_in_gpt_j",
+        ]
+    )
     _import_structure["models.albert"].extend(
         [
             "ALBERT_PRETRAINED_MODEL_ARCHIVE_LIST",
@@ -1681,6 +1699,7 @@ if TYPE_CHECKING:
     from .models.fsmt import FSMT_PRETRAINED_CONFIG_ARCHIVE_MAP, FSMTConfig, FSMTTokenizer
     from .models.funnel import FUNNEL_PRETRAINED_CONFIG_ARCHIVE_MAP, FunnelConfig, FunnelTokenizer
     from .models.gpt2 import GPT2_PRETRAINED_CONFIG_ARCHIVE_MAP, GPT2Config, GPT2Tokenizer
+    from .models.gpt_j import GPT_J_PRETRAINED_CONFIG_ARCHIVE_MAP, GPTJConfig, GPTJTokenizer
     from .models.gpt_neo import GPT_NEO_PRETRAINED_CONFIG_ARCHIVE_MAP, GPTNeoConfig
     from .models.herbert import HerbertTokenizer
     from .models.ibert import IBERT_PRETRAINED_CONFIG_ARCHIVE_MAP, IBertConfig
@@ -1819,6 +1838,7 @@ if TYPE_CHECKING:
         from .models.electra import ElectraTokenizerFast
         from .models.funnel import FunnelTokenizerFast
         from .models.gpt2 import GPT2TokenizerFast
+        from .models.gpt_j import GPTJTokenizerFast
         from .models.herbert import HerbertTokenizerFast
         from .models.layoutlm import LayoutLMTokenizerFast
         from .models.led import LEDTokenizerFast
@@ -2151,6 +2171,19 @@ if TYPE_CHECKING:
             GPT2Model,
             GPT2PreTrainedModel,
             load_tf_weights_in_gpt2,
+        )
+        from .models.gpt_j import (
+            GPT_J_PRETRAINED_MODEL_ARCHIVE_LIST,
+            GPTJForCausalLM,
+            GPTJForMaskedLM,
+            GPTJForMultipleChoice,
+            GPTJForQuestionAnswering,
+            GPTJForSequenceClassification,
+            GPTJForTokenClassification,
+            GPTJLayer,
+            GPTJModel,
+            GPTJPreTrainedModel,
+            load_tf_weights_in_gpt_j,
         )
         from .models.gpt_neo import (
             GPT_NEO_PRETRAINED_MODEL_ARCHIVE_LIST,

@@ -19,8 +19,6 @@ import warnings
 from collections import OrderedDict
 
 from ...utils import logging
-
-# Add modeling imports here
 from ..albert.modeling_albert import (
     AlbertForMaskedLM,
     AlbertForMultipleChoice,
@@ -145,6 +143,17 @@ from ..funnel.modeling_funnel import (
     FunnelModel,
 )
 from ..gpt2.modeling_gpt2 import GPT2ForSequenceClassification, GPT2LMHeadModel, GPT2Model
+
+# Add modeling imports here
+from ..gpt_j.modeling_gpt_j import (
+    GPTJForCausalLM,
+    GPTJForMaskedLM,
+    GPTJForMultipleChoice,
+    GPTJForQuestionAnswering,
+    GPTJForSequenceClassification,
+    GPTJForTokenClassification,
+    GPTJModel,
+)
 from ..gpt_neo.modeling_gpt_neo import GPTNeoForCausalLM, GPTNeoForSequenceClassification, GPTNeoModel
 from ..ibert.modeling_ibert import (
     IBertForMaskedLM,
@@ -324,6 +333,7 @@ from .configuration_auto import (
     FSMTConfig,
     FunnelConfig,
     GPT2Config,
+    GPTJConfig,
     GPTNeoConfig,
     IBertConfig,
     LayoutLMConfig,
@@ -366,6 +376,7 @@ logger = logging.get_logger(__name__)
 MODEL_MAPPING = OrderedDict(
     [
         # Base model mapping
+        (GPTJConfig, GPTJModel),
         (VisualBertConfig, VisualBertModel),
         (RoFormerConfig, RoFormerModel),
         (CLIPConfig, CLIPModel),
@@ -466,6 +477,7 @@ MODEL_FOR_PRETRAINING_MAPPING = OrderedDict(
 MODEL_WITH_LM_HEAD_MAPPING = OrderedDict(
     [
         # Model with LM heads mapping
+        (GPTJConfig, GPTJForMaskedLM),
         (RoFormerConfig, RoFormerForMaskedLM),
         (BigBirdPegasusConfig, BigBirdPegasusForConditionalGeneration),
         (GPTNeoConfig, GPTNeoForCausalLM),
@@ -514,6 +526,7 @@ MODEL_WITH_LM_HEAD_MAPPING = OrderedDict(
 MODEL_FOR_CAUSAL_LM_MAPPING = OrderedDict(
     [
         # Model for Causal LM mapping
+        (GPTJConfig, GPTJForCausalLM),
         (RoFormerConfig, RoFormerForCausalLM),
         (BigBirdPegasusConfig, BigBirdPegasusForCausalLM),
         (GPTNeoConfig, GPTNeoForCausalLM),
@@ -556,6 +569,7 @@ MODEL_FOR_IMAGE_CLASSIFICATION_MAPPING = OrderedDict(
 MODEL_FOR_MASKED_LM_MAPPING = OrderedDict(
     [
         # Model for Masked LM mapping
+        (GPTJConfig, GPTJForMaskedLM),
         (RoFormerConfig, RoFormerForMaskedLM),
         (BigBirdConfig, BigBirdForMaskedLM),
         (Wav2Vec2Config, Wav2Vec2ForMaskedLM),
@@ -610,6 +624,7 @@ MODEL_FOR_SEQ_TO_SEQ_CAUSAL_LM_MAPPING = OrderedDict(
 MODEL_FOR_SEQUENCE_CLASSIFICATION_MAPPING = OrderedDict(
     [
         # Model for Sequence Classification mapping
+        (GPTJConfig, GPTJForSequenceClassification),
         (RoFormerConfig, RoFormerForSequenceClassification),
         (BigBirdPegasusConfig, BigBirdPegasusForSequenceClassification),
         (BigBirdConfig, BigBirdForSequenceClassification),
@@ -650,6 +665,7 @@ MODEL_FOR_SEQUENCE_CLASSIFICATION_MAPPING = OrderedDict(
 MODEL_FOR_QUESTION_ANSWERING_MAPPING = OrderedDict(
     [
         # Model for Question Answering mapping
+        (GPTJConfig, GPTJForQuestionAnswering),
         (RoFormerConfig, RoFormerForQuestionAnswering),
         (BigBirdPegasusConfig, BigBirdPegasusForQuestionAnswering),
         (BigBirdConfig, BigBirdForQuestionAnswering),
@@ -691,6 +707,7 @@ MODEL_FOR_TABLE_QUESTION_ANSWERING_MAPPING = OrderedDict(
 MODEL_FOR_TOKEN_CLASSIFICATION_MAPPING = OrderedDict(
     [
         # Model for Token Classification mapping
+        (GPTJConfig, GPTJForTokenClassification),
         (RoFormerConfig, RoFormerForTokenClassification),
         (BigBirdConfig, BigBirdForTokenClassification),
         (ConvBertConfig, ConvBertForTokenClassification),
@@ -721,6 +738,7 @@ MODEL_FOR_TOKEN_CLASSIFICATION_MAPPING = OrderedDict(
 MODEL_FOR_MULTIPLE_CHOICE_MAPPING = OrderedDict(
     [
         # Model for Multiple Choice mapping
+        (GPTJConfig, GPTJForMultipleChoice),
         (RoFormerConfig, RoFormerForMultipleChoice),
         (BigBirdConfig, BigBirdForMultipleChoice),
         (ConvBertConfig, ConvBertForMultipleChoice),
