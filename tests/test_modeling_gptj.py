@@ -524,7 +524,7 @@ class GPTJModelLanguageGenerationTest(unittest.TestCase):
         tokenized = tokenizer("Today is a nice day and", return_tensors="pt", return_token_type_ids=True)
         input_ids = tokenized.input_ids.to(torch_device)
 
-        MAX_TIME = 0.5
+        MAX_TIME = 1
 
         start = datetime.datetime.now()
         model.generate(input_ids, do_sample=True, max_time=MAX_TIME, max_length=256)
