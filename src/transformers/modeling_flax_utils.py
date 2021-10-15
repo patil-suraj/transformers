@@ -87,6 +87,7 @@ class FlaxPreTrainedModel(PushToHubMixin, FlaxGenerationMixin):
         input_shape: Tuple = (1, 1),
         seed: int = 0,
         dtype: jnp.dtype = jnp.float32,
+        abstract_init: bool = False,
     ):
         if config is None:
             raise ValueError("config cannot be None")
@@ -103,7 +104,16 @@ class FlaxPreTrainedModel(PushToHubMixin, FlaxGenerationMixin):
         self.dtype = dtype
 
         # randomly initialized parameters
-        random_params = self.init_weights(self.key, input_shape)
+        if abstract_init:
+            # init the model weights only abstractly, eval_shape will return a pytree
+            # with the structure as weights but without any actual values, this will just contain
+            # the shape information. This should be used when initializing very large models
+            # that don't fit on single device and where sharded inittilization is necessary.
+            # TODO: How to handle initializing head weights when we are loading a pre-trained base ?
+            init_fn = partial(self.init_weights, input_shape=input_shape)
+            random_params = jax.eval_shape(init_fn, self.key)
+        else:
+            random_params = self.init_weights(self.key, input_shape)
 
         # save required_params as set
         self._required_params = set(flatten_dict(unfreeze(random_params)).keys())
@@ -263,6 +273,7 @@ class FlaxPreTrainedModel(PushToHubMixin, FlaxGenerationMixin):
         revision = kwargs.pop("revision", None)
         from_pipeline = kwargs.pop("_from_pipeline", None)
         from_auto_class = kwargs.pop("_from_auto", False)
+        load_on_cpu = kwargs.pop("load_on_cpu", False)
 
         user_agent = {"file_type": "model", "framework": "flax", "from_auto_class": from_auto_class}
         if from_pipeline is not None:
@@ -373,7 +384,11 @@ class FlaxPreTrainedModel(PushToHubMixin, FlaxGenerationMixin):
             # make sure all arrays are stored as jnp.arrays
             # NOTE: This is to prevent a bug this will be fixed in Flax >= v0.3.4:
             # https://github.com/google/flax/issues/1261
-            state = jax.tree_util.tree_map(jnp.array, state)
+            # if load_on_cpu is True, params will be a numpy arrays on CPU.
+            # This should be used for very large model that don't fit on single device
+            # and where we need to shard the weights.
+            if not load_on_cpu:
+                state = jax.tree_util.tree_map(jnp.array, state)
 
         # if model is base model only use model_prefix key
         if cls.base_model_prefix not in dict(model.params) and cls.base_model_prefix in state:
