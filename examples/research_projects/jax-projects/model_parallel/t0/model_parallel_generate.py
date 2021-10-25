@@ -22,6 +22,7 @@ from flax.core.frozen_dict import freeze, unfreeze
 from jax.experimental import PartitionSpec as P
 from jax.experimental import maps
 from jax.experimental.pjit import pjit
+from jax.lib import xla_bridge
 
 from transformers import FlaxT5ForConditionalGeneration, T5TokenizerFast
 
@@ -36,7 +37,10 @@ from partitions import set_partitions
 # if load_on_cpu is True, params will be a numpy arrays on CPU.
 # This should be used for very large model that don't fit on single device
 # and where we need to shard the weights.
-model = FlaxT5ForConditionalGeneration.from_pretrained("valhalla/T0pp-flax-test", abstract_init=True, load_on_cpu=True)
+dtype = jnp.dtype("bfloat16") if xla_bridge.get_backend().platform == "tpu" else jnp.float32
+model = FlaxT5ForConditionalGeneration.from_pretrained(
+    "valhalla/T0pp-flax-test", abstract_init=True, load_on_cpu=True, dtype=dtype
+)
 tokenizer = T5TokenizerFast.from_pretrained("bigscience/T0")
 
 
