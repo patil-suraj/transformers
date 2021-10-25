@@ -22,7 +22,6 @@ from flax.core.frozen_dict import freeze, unfreeze
 from jax.experimental import PartitionSpec as P
 from jax.experimental import maps
 from jax.experimental.pjit import pjit
-from jax.lib import xla_bridge
 
 from transformers import FlaxT5ForConditionalGeneration, T5TokenizerFast
 
@@ -37,7 +36,8 @@ from partitions import set_partitions
 # if load_on_cpu is True, params will be a numpy arrays on CPU.
 # This should be used for very large model that don't fit on single device
 # and where we need to shard the weights.
-dtype = jnp.dtype("bfloat16") if xla_bridge.get_backend().platform == "tpu" else jnp.float32
+platform = jax.lib.xla_bridge.get_backend().platform
+dtype = jnp.dtype("bfloat16") if platform == "tpu" else jnp.float32
 model = FlaxT5ForConditionalGeneration.from_pretrained(
     "valhalla/T0pp-flax-test", abstract_init=True, load_on_cpu=True, dtype=dtype
 )
@@ -56,8 +56,14 @@ def to_bf16(t):
     return jax.tree_map(lambda x: x.astype(jnp.bfloat16) if x.dtype == jnp.float32 else x, t)
 
 
+def to_fp32(t):
+    return jax.tree_map(lambda x: x.astype(jnp.float32) if x.dtype == jnp.bfloat16 else x, t)
+
+
 shard_params = pjit(
-    lambda params: to_bf16(params), in_axis_resources=(partition_spec,), out_axis_resources=partition_spec
+    lambda params: to_bf16(params) if platform == "tpu" else to_fp32(params),
+    in_axis_resources=(partition_spec,),
+    out_axis_resources=partition_spec,
 )
 
 # define the mesh, this can be defined however you like
@@ -79,7 +85,6 @@ def generate(params, input_ids, attention_mask):
     output_ids = model.generate(input_ids, attention_mask=attention_mask, params=params).sequences
     return output_ids
 
-
 p_generate = pjit(generate, in_axis_resources=(partition_spec, P("dp"), P("dp")), out_axis_resources=P("dp"))
 
 
@@ -89,11 +94,9 @@ model.config.max_length = 64
 model.config.num_beams = 1
 
 prompt = "is this review positive or negative? Review: Best cast iron skillet you will every buy."
-# BS = 8
-inputs = tokenizer([prompt] * 8, return_tensors="jax", padding="max_length", truncation=True, max_length=512)
+inputs = tokenizer([prompt] * 8, return_tensors="jax", padding="max_length", truncation=True, max_length=512) # BS = 8
 
 with maps.mesh(mesh.devices, mesh.axis_names):
     gen_ids = p_generate(freeze(model.params), inputs["input_ids"], inputs["attention_mask"])
-
 
 generated_text = tokenizer.batch_decode(gen_ids, skip_special_tokens=True)
