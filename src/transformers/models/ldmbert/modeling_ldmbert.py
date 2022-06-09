@@ -687,20 +687,20 @@ class LDMBertModel(LDMBertPreTrainedModel):
             return_dict=return_dict,
         )
         sequence_output = outputs[0]
-        logits = self.to_logits(sequence_output)
-        outputs = (logits,) + outputs[1:]
+        # logits = self.to_logits(sequence_output)
+        # outputs = (logits,) + outputs[1:]
         
-        if labels is not None:
-            loss_fct = CrossEntropyLoss()
-            loss = loss_fct(logits.view(-1, self.config.vocab_size), labels.view(-1))
-            outputs = (loss,) + outputs
+        # if labels is not None:
+        #     loss_fct = CrossEntropyLoss()
+        #     loss = loss_fct(logits.view(-1, self.config.vocab_size), labels.view(-1))
+        #     outputs = (loss,) + outputs
         
-        if not return_dict:
-            return outputs
+        # if not return_dict:
+        #     return outputs
         
         return BaseModelOutput(
-            last_hidden_state=outputs[0],
-            hidden_states=outputs[1],
-            attentions=outputs[2],
+            last_hidden_state=sequence_output,
+            # hidden_states=outputs[1],
+            # attentions=outputs[2],
         )
         
