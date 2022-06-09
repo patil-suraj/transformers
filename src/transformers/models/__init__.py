@@ -72,6 +72,7 @@ from . import (
     layoutlmv2,
     layoutlmv3,
     layoutxlm,
+    ldmbert,
     led,
     levit,
     longformer,

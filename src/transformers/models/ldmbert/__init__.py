@@ -2,7 +2,7 @@
 # There's no way to ignore "F401 '...' imported but unused" warnings in this
 # module, but to preserve other warnings. So, don't check this module at all.
 
-# Copyright 2020 The HuggingFace Team. All rights reserved.
+# Copyright 2022 The HuggingFace Team. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,12 +17,11 @@
 # limitations under the License.
 from typing import TYPE_CHECKING
 
-# rely on isort to merge the imports
-from ...utils import OptionalDependencyNotAvailable, _LazyModule, is_flax_available, is_torch_available
+from ...utils import OptionalDependencyNotAvailable, _LazyModule, is_torch_available
 
 
 _import_structure = {
-    "configuration_vqgan": ["VQGAN_PRETRAINED_CONFIG_ARCHIVE_MAP", "VQGANConfig"],
+    "configuration_ldmbert": ["LDMBERT_PRETRAINED_CONFIG_ARCHIVE_MAP", "LDMBertConfig", "LDMBertOnnxConfig"],
 }
 
 try:
@@ -31,27 +30,14 @@ try:
 except OptionalDependencyNotAvailable:
     pass
 else:
-    _import_structure["modeling_vqgan"] = [
-        "VQGAN_PRETRAINED_MODEL_ARCHIVE_LIST",
-        "VQGANModel",
-        "VQGANPreTrainedModel",
+    _import_structure["modeling_ldmbert"] = [
+        "LDMBERT_PRETRAINED_MODEL_ARCHIVE_LIST",
+        "LDMBertModel",
+        "LDMBertPreTrainedModel",
     ]
-
-
-try:
-    if not is_flax_available():
-        raise OptionalDependencyNotAvailable()
-except OptionalDependencyNotAvailable:
-    pass
-else:
-    _import_structure["modeling_flax_vqgan"] = [
-        "FlaxVQGANModel",
-        "FlaxVQGANPreTrainedModel",
-    ]
-
 
 if TYPE_CHECKING:
-    from .configuration_vqgan import VQGAN_PRETRAINED_CONFIG_ARCHIVE_MAP, VQGANConfig
+    from .configuration_ldmbert import LDMBERT_PRETRAINED_CONFIG_ARCHIVE_MAP, LDMBertConfig, LDMBertOnnxConfig
 
     try:
         if not is_torch_available():
@@ -59,16 +45,7 @@ if TYPE_CHECKING:
     except OptionalDependencyNotAvailable:
         pass
     else:
-        from .modeling_vqgan import VQGAN_PRETRAINED_MODEL_ARCHIVE_LIST, VQGANModel, VQGANPreTrainedModel
-
-    try:
-        if not is_flax_available():
-            raise OptionalDependencyNotAvailable()
-    except OptionalDependencyNotAvailable:
-        pass
-    else:
-        from .modeling_vqgan import FlaxVQGANModel, FlaxVQGANPreTrainedModel
-
+        from .modeling_ldmbert import LDMBERT_PRETRAINED_MODEL_ARCHIVE_LIST, LDMBertModel, LDMBertPreTrainedModel
 
 else:
     import sys

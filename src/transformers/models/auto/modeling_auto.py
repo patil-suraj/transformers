@@ -74,6 +74,7 @@ MODEL_MAPPING_NAMES = OrderedDict(
         ("layoutlm", "LayoutLMModel"),
         ("layoutlmv2", "LayoutLMv2Model"),
         ("layoutlmv3", "LayoutLMv3Model"),
+        ("ldmbert", "LDMBertModel"),
         ("led", "LEDModel"),
         ("levit", "LevitModel"),
         ("longformer", "LongformerModel"),

@@ -15,9 +15,9 @@
 """ PyTorch VQGAN model."""
 
 
-from functools import partial
 import math
 import os
+from functools import partial
 from typing import Optional, Tuple, Union
 
 import torch
@@ -84,7 +84,7 @@ class Upsample(nn.Module):
 class Downsample(nn.Module):
     def __init__(self, in_channels: int, with_conv: bool):
         super().__init__()
-        
+
         self.with_conv = with_conv
         if self.with_conv:
             self.conv = nn.Conv2d(
@@ -97,7 +97,7 @@ class Downsample(nn.Module):
 
     def forward(self, hidden_states):
         if self.with_conv:
-            pad = (0,1,0,1)  # pad height and width dim
+            pad = (0, 1, 0, 1)  # pad height and width dim
             hidden_states = torch.nn.functional.pad(hidden_states, pad, mode="constant", value=0)
             hidden_states = self.conv(hidden_states)
         else:
@@ -106,7 +106,6 @@ class Downsample(nn.Module):
 
 
 class ResnetBlock(nn.Module):
-   
     def __init__(
         self,
         in_channels: int,
@@ -171,7 +170,9 @@ class ResnetBlock(nn.Module):
         hidden_states = self.conv1(hidden_states)
 
         if temb is not None:
-            hidden_states = hidden_states + self.temb_proj(self.activation(temb))[:, :, None, None]  # TODO: check shapes
+            hidden_states = (
+                hidden_states + self.temb_proj(self.activation(temb))[:, :, None, None]
+            )  # TODO: check shapes
 
         hidden_states = self.norm2(hidden_states)
         hidden_states = self.activation(hidden_states)
@@ -192,9 +193,7 @@ class AttnBlock(nn.Module):
         super().__init__()
 
         self.in_channels = in_channels
-        conv = partial(
-            nn.Conv2d, self.in_channels, self.in_channels, kernel_size=1, stride=1, padding=0
-        )
+        conv = partial(nn.Conv2d, self.in_channels, self.in_channels, kernel_size=1, stride=1, padding=0)
 
         self.norm = nn.GroupNorm(num_groups=32, num_channels=self.in_channels, eps=1e-6, affine=True)
         self.q, self.k, self.v = conv(), conv(), conv()
@@ -212,7 +211,7 @@ class AttnBlock(nn.Module):
         batch, channels, height, width = query.shape
         query = query.reshape((batch, height * width, channels))
         key = key.reshape((batch, height * width, channels))
-        
+
         attn_weights = torch.einsum("...qc,...kc->...qk", query, key)
         attn_weights = attn_weights * (int(channels) ** -0.5)
         attn_weights = nn.functional.softmax(attn_weights, dim=2)
@@ -228,7 +227,6 @@ class AttnBlock(nn.Module):
 
 
 class UpsamplingBlock(nn.Module):
-
     def __init__(self, config, curr_res: int, block_idx: int):
         super().__init__()
 
@@ -248,9 +246,7 @@ class UpsamplingBlock(nn.Module):
         attn_blocks = []
         for _ in range(self.config.num_res_blocks + 1):
             res_blocks.append(
-                ResnetBlock(
-                    block_in, block_out, temb_channels=self.temb_ch, dropout_prob=self.config.dropout
-                )
+                ResnetBlock(block_in, block_out, temb_channels=self.temb_ch, dropout_prob=self.config.dropout)
             )
             block_in = block_out
             if self.curr_res in self.config.attn_resolutions:
@@ -292,9 +288,7 @@ class DownsamplingBlock(nn.Module):
         attn_blocks = nn.ModuleList()
         for _ in range(self.config.num_res_blocks):
             res_blocks.append(
-                ResnetBlock(
-                    block_in, block_out, temb_channels=self.temb_ch, dropout_prob=self.config.dropout
-                )
+                ResnetBlock(block_in, block_out, temb_channels=self.temb_ch, dropout_prob=self.config.dropout)
             )
             block_in = block_out
             if self.curr_res in self.config.attn_resolutions:
@@ -320,14 +314,14 @@ class DownsamplingBlock(nn.Module):
 
 
 class MidBlock(nn.Module):
-    def __init__(self, config,  in_channels: int, temb_channels: int, dropout: float):
+    def __init__(self, config, in_channels: int, temb_channels: int, dropout: float):
         super().__init__()
-        
+
         self.config = config
         self.in_channels = in_channels
         self.temb_channels = temb_channels
         self.dropout = dropout
-        
+
         self.block_1 = ResnetBlock(
             self.in_channels,
             self.in_channels,
@@ -389,7 +383,6 @@ class Encoder(nn.Module):
             padding=1,
         )
 
-
     def forward(self, pixel_values):
         # timestep embedding
         temb = None
@@ -412,6 +405,7 @@ class Encoder(nn.Module):
 
 class Decoder(nn.Module):
     config: VQGANConfig
+
     def __init__(self, config):
         super().__init__()
 
@@ -511,7 +505,7 @@ class VectorQuantizer(nn.Module):
 
         # distances from z to embeddings e_j (z - e)^2 = z^2 + e^2 - 2 e * z
         emb_weights = self.embedding.weight
-        distance = (        
+        distance = (
             torch.sum(hidden_states_flattended**2, dim=1, keepdims=True)
             + torch.sum(emb_weights**2, dim=1)
             - 2 * torch.matmul(hidden_states_flattended, emb_weights.T)
@@ -595,4 +589,3 @@ class VQGANModel(VQGANPreTrainedModel):
         # import ipdb; ipdb.set_trace()
         hidden_states = self.decode(quant_states)
         return hidden_states, indices
-

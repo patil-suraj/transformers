@@ -235,6 +235,7 @@ _import_structure = {
         "LayoutLMv3Tokenizer",
     ],
     "models.layoutxlm": ["LayoutXLMProcessor"],
+    "models.ldmbert": ["LDMBertConfig"],
     "models.led": ["LED_PRETRAINED_CONFIG_ARCHIVE_MAP", "LEDConfig", "LEDTokenizer"],
     "models.levit": ["LEVIT_PRETRAINED_CONFIG_ARCHIVE_MAP", "LevitConfig"],
     "models.longformer": ["LONGFORMER_PRETRAINED_CONFIG_ARCHIVE_MAP", "LongformerConfig", "LongformerTokenizer"],
@@ -803,6 +804,13 @@ else:
             "BartModel",
             "BartPretrainedModel",
             "PretrainedBartModel",
+        ]
+    )
+    _import_structure["models.ldmbert"].extend(
+        [
+            "LDMBERT_PRETRAINED_MODEL_ARCHIVE_LIST",
+            "LDMBertModel",
+            "LDMBertPreTrainedModel",
         ]
     )
     _import_structure["models.beit"].extend(
@@ -2848,6 +2856,7 @@ if TYPE_CHECKING:
         LayoutLMv3Tokenizer,
     )
     from .models.layoutxlm import LayoutXLMProcessor
+    from .models.ldmbert import LDMBertConfig
     from .models.led import LED_PRETRAINED_CONFIG_ARCHIVE_MAP, LEDConfig, LEDTokenizer
     from .models.levit import LEVIT_PRETRAINED_CONFIG_ARCHIVE_MAP, LevitConfig
     from .models.longformer import LONGFORMER_PRETRAINED_CONFIG_ARCHIVE_MAP, LongformerConfig, LongformerTokenizer
@@ -3692,6 +3701,7 @@ if TYPE_CHECKING:
             LayoutLMv3Model,
             LayoutLMv3PreTrainedModel,
         )
+        from .models.ldmbert import LDMBERT_PRETRAINED_MODEL_ARCHIVE_LIST, LDMBertModel, LDMBertPreTrainedModel
         from .models.led import (
             LED_PRETRAINED_MODEL_ARCHIVE_LIST,
             LEDForConditionalGeneration,
@@ -4089,11 +4099,7 @@ if TYPE_CHECKING:
             ViTMAEModel,
             ViTMAEPreTrainedModel,
         )
-        from .models.vqgan import (
-            VQGAN_PRETRAINED_MODEL_ARCHIVE_LIST,
-            VQGANModel,
-            VQGANPreTrainedModel,
-        )
+        from .models.vqgan import VQGAN_PRETRAINED_MODEL_ARCHIVE_LIST, VQGANModel, VQGANPreTrainedModel
         from .models.wav2vec2 import (
             WAV_2_VEC_2_PRETRAINED_MODEL_ARCHIVE_LIST,
             Wav2Vec2ForAudioFrameClassification,
@@ -4815,10 +4821,7 @@ if TYPE_CHECKING:
         from .models.vision_encoder_decoder import FlaxVisionEncoderDecoderModel
         from .models.vision_text_dual_encoder import FlaxVisionTextDualEncoderModel
         from .models.vit import FlaxViTForImageClassification, FlaxViTModel, FlaxViTPreTrainedModel
-        from .models.vqgan import (
-            FlaxVQGANModel,
-            FlaxVQGANPreTrainedModel,
-        )
+        from .models.vqgan import FlaxVQGANModel, FlaxVQGANPreTrainedModel
         from .models.wav2vec2 import (
             FlaxWav2Vec2ForCTC,
             FlaxWav2Vec2ForPreTraining,

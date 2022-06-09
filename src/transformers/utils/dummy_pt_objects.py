@@ -2443,6 +2443,23 @@ class LayoutLMv3PreTrainedModel(metaclass=DummyObject):
         requires_backends(self, ["torch"])
 
 
+LDMBERT_PRETRAINED_MODEL_ARCHIVE_LIST = None
+
+
+class LDMBertModel(metaclass=DummyObject):
+    _backends = ["torch"]
+
+    def __init__(self, *args, **kwargs):
+        requires_backends(self, ["torch"])
+
+
+class LDMBertPreTrainedModel(metaclass=DummyObject):
+    _backends = ["torch"]
+
+    def __init__(self, *args, **kwargs):
+        requires_backends(self, ["torch"])
+
+
 LED_PRETRAINED_MODEL_ARCHIVE_LIST = None
 
 
@@ -4554,6 +4571,23 @@ class ViTMAEModel(metaclass=DummyObject):
 
 
 class ViTMAEPreTrainedModel(metaclass=DummyObject):
+    _backends = ["torch"]
+
+    def __init__(self, *args, **kwargs):
+        requires_backends(self, ["torch"])
+
+
+VQGAN_PRETRAINED_MODEL_ARCHIVE_LIST = None
+
+
+class VQGANModel(metaclass=DummyObject):
+    _backends = ["torch"]
+
+    def __init__(self, *args, **kwargs):
+        requires_backends(self, ["torch"])
+
+
+class VQGANPreTrainedModel(metaclass=DummyObject):
     _backends = ["torch"]
 
     def __init__(self, *args, **kwargs):

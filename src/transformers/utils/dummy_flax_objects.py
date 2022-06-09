@@ -1005,6 +1005,20 @@ class FlaxViTPreTrainedModel(metaclass=DummyObject):
         requires_backends(self, ["flax"])
 
 
+class FlaxVQGANModel(metaclass=DummyObject):
+    _backends = ["flax"]
+
+    def __init__(self, *args, **kwargs):
+        requires_backends(self, ["flax"])
+
+
+class FlaxVQGANPreTrainedModel(metaclass=DummyObject):
+    _backends = ["flax"]
+
+    def __init__(self, *args, **kwargs):
+        requires_backends(self, ["flax"])
+
+
 class FlaxWav2Vec2ForCTC(metaclass=DummyObject):
     _backends = ["flax"]
 
